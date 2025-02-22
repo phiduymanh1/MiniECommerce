@@ -1,8 +1,8 @@
 package com.example.miniecommerce.Entity;
 
+import com.example.miniecommerce.enums.PaymentMethod;
+import com.example.miniecommerce.enums.PaymentStatus;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.annotations.Nationalized;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -23,11 +23,13 @@ public class Payment {
 
     @Nationalized
     @Column(name = "payment_method", nullable = false, length = 50)
-    private String paymentMethod;
+    @Enumerated(EnumType.STRING)
+    private PaymentMethod paymentMethod;
 
     @Nationalized
     @Column(name = "status", nullable = false, length = 20)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus status;
 
     @Nationalized
     @Column(name = "transaction_id", length = 100)
@@ -36,7 +38,7 @@ public class Payment {
     public Payment() {
     }
 
-    public Payment(Integer id, Order order, String paymentMethod, String status, String transactionId) {
+    public Payment(Integer id, Order order, PaymentMethod paymentMethod, PaymentStatus status, String transactionId) {
         this.id = id;
         this.order = order;
         this.paymentMethod = paymentMethod;
@@ -60,19 +62,19 @@ public class Payment {
         this.order = order;
     }
 
-    public String getPaymentMethod() {
+    public PaymentMethod getPaymentMethod() {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(String paymentMethod) {
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
 
-    public String getStatus() {
+    public PaymentStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(PaymentStatus status) {
         this.status = status;
     }
 

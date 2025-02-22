@@ -1,8 +1,7 @@
 package com.example.miniecommerce.Entity;
 
+import com.example.miniecommerce.enums.OrderStatus;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Nationalized;
 import org.hibernate.annotations.OnDelete;
@@ -32,7 +31,8 @@ public class Order {
 
     @Nationalized
     @Column(name = "status", nullable = false, length = 20)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 
     @ColumnDefault("getdate()")
     @Column(name = "created_at")
@@ -47,7 +47,7 @@ public class Order {
     public Order() {
     }
 
-    public Order(Integer id, User user, BigDecimal totalPrice, String status, Instant createdAt, Set<OrderItem> orderItems, Set<Payment> payments) {
+    public Order(Integer id, User user, BigDecimal totalPrice, OrderStatus status, Instant createdAt, Set<OrderItem> orderItems, Set<Payment> payments) {
         this.id = id;
         this.user = user;
         this.totalPrice = totalPrice;
@@ -81,11 +81,11 @@ public class Order {
         this.totalPrice = totalPrice;
     }
 
-    public String getStatus() {
+    public OrderStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(OrderStatus status) {
         this.status = status;
     }
 

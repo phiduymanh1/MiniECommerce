@@ -1,8 +1,7 @@
 package com.example.miniecommerce.Entity;
 
+import com.example.miniecommerce.enums.Role;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.annotations.Nationalized;
 
 import java.util.LinkedHashSet;
@@ -43,7 +42,8 @@ public class User {
 
     @Nationalized
     @Column(name = "role", nullable = false, length = 20)
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL,orphanRemoval = true)
     private Set<CartItem> cartItems = new LinkedHashSet<>();
@@ -54,7 +54,7 @@ public class User {
     public User() {
     }
 
-    public User(Integer id, String username, String email, String password, String fullName, String phone, String address, String role, Set<CartItem> cartItems, Set<Order> orders) {
+    public User(Integer id, String username, String email, String password, String fullName, String phone, String address, Role role, Set<CartItem> cartItems, Set<Order> orders) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -123,11 +123,11 @@ public class User {
         this.address = address;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 
