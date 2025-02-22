@@ -1,0 +1,113 @@
+﻿CREATE DATABASE MiniECommerce;
+USE MiniECommerce;
+
+-- Bảng người dùng
+CREATE TABLE users (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    username NVARCHAR(50) UNIQUE NOT NULL,
+    email NVARCHAR(100) UNIQUE NOT NULL,
+    password NVARCHAR(255) NOT NULL,
+    full_name NVARCHAR(100),
+    phone NVARCHAR(15),
+    address NVARCHAR(255),
+    role NVARCHAR(20) NOT NULL CHECK (role IN ('USER', 'ADMIN'))
+);
+
+-- Bảng danh mục sản phẩm
+CREATE TABLE categories (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    name NVARCHAR(100) UNIQUE NOT NULL,
+    description NVARCHAR(255)
+);
+
+-- Bảng sản phẩm
+CREATE TABLE products (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    name NVARCHAR(255) NOT NULL,
+    description NVARCHAR(MAX),
+    price DECIMAL(10,2) NOT NULL,
+    stock INT NOT NULL CHECK (stock >= 0),
+    category_id INT NOT NULL,
+    image_url NVARCHAR(255),
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+);
+
+-- Bảng đơn hàng
+CREATE TABLE orders (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id INT NOT NULL,
+    total_price DECIMAL(10,2) NOT NULL CHECK (total_price >= 0),
+    status NVARCHAR(20) NOT NULL CHECK (status IN ('PENDING', 'SHIPPED', 'CANCELED', 'COMPLETED')),
+    created_at DATETIME ,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Bảng chi tiết đơn hàng
+CREATE TABLE order_items (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    order_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL CHECK (quantity > 0),
+    price DECIMAL(10,2) NOT NULL CHECK (price >= 0),
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);
+
+-- Bảng giỏ hàng
+CREATE TABLE cart_items (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL CHECK (quantity > 0),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);
+
+-- Bảng thanh toán
+CREATE TABLE payments (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    order_id INT NOT NULL,
+    payment_method NVARCHAR(50) NOT NULL CHECK (payment_method IN ('CASH', 'CREDIT_CARD', 'PAYPAL')),
+    status NVARCHAR(20) NOT NULL CHECK (status IN ('PENDING', 'SUCCESS', 'FAILED')),
+    transaction_id NVARCHAR(100) UNIQUE,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+);
+
+-- Dữ liệu mẫu
+INSERT INTO users (username, email, password, full_name, phone, address, role) VALUES
+('admin', 'admin@example.com', 'hashed_password', 'Admin User', '0987654321', 'Hà Nội', 'ADMIN'),
+('user1', 'user1@example.com', 'hashed_password', 'Nguyễn Văn A', '0912345678', 'TP.HCM', 'USER'),
+('user2', 'user2@example.com', 'hashed_password', 'Trần Thị B', '0923456789', 'Đà Nẵng', 'USER');
+
+INSERT INTO categories (name, description) VALUES
+('Điện thoại', 'Các loại điện thoại thông minh'),
+('Laptop', 'Máy tính xách tay các hãng'),
+('Phụ kiện', 'Các phụ kiện công nghệ như tai nghe, sạc, cáp');
+
+INSERT INTO products (name, description, price, stock, category_id, image_url) VALUES
+('iPhone 15 Pro Max', 'Điện thoại Apple mới nhất', 35000000, 10, 1, 'iphone_15_pro_max.jpg'),
+('Samsung Galaxy S23', 'Điện thoại Samsung flagship', 28000000, 15, 1, 'samsung_s23.jpg'),
+('MacBook Air M2', 'Laptop Apple MacBook Air M2', 32000000, 5, 2, 'macbook_air_m2.jpg'),
+('Tai nghe AirPods Pro', 'Tai nghe không dây Apple', 5500000, 20, 3, 'airpods_pro.jpg');
+
+INSERT INTO cart_items (user_id, product_id, quantity) VALUES
+(2, 1, 1),
+(2, 4, 2),
+(3, 3, 1);
+
+
+
+INSERT INTO orders (user_id, total_price, status, created_at)
+VALUES 
+(1, 500.00, 'PENDING', GETDATE()), 
+(2, 1200.50, 'SHIPPED', GETDATE()), 
+(3, 700.00, 'COMPLETED', GETDATE());
+
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(1, 1, 1, 35000000),
+(1, 4, 2, 11000000),
+(2, 3, 1, 32000000);
+
+INSERT INTO payments (order_id, payment_method, status, transaction_id) VALUES
+(1, 'CREDIT_CARD', 'SUCCESS', 'TXN123456789'),
+(2, 'CASH', 'SUCCESS', 'TXN987654321');
